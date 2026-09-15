@@ -57,7 +57,6 @@
   #time { font-size: 42px; font-weight: bold; letter-spacing: 1px; }
   #date { font-size: 16px; margin-left: 14px; color: #ffe3e3; }
   #corner { position: fixed; right: 14px; bottom: 12px; font-size: 12px; color: #ffd0d0; }
-  #corner #who { opacity: 0.7; margin-left: 8px; }
 </style>
 </head>
 <body>
@@ -67,10 +66,10 @@
     <div id="tiles"></div>
     <div id="bottom"><span id="time">--:--</span><span id="date"></span></div>
   </div>
-  <div id="corner"><span id="ver"></span><span id="who"></span></div>
+  <div id="corner"><span id="ver"></span></div>
 
 <script language="javascript">
-  var LAUNCHER_VERSION = 8;
+  var LAUNCHER_VERSION = 9;
   var UPDATE_URL = 'https://raw.githubusercontent.com/vaiconapp/vaicon-launcher/main/VAICON.hta';
 
   (function () {
@@ -108,10 +107,6 @@
   var sh  = new ActiveXObject('WScript.Shell');
   var fso = new ActiveXObject('Scripting.FileSystemObject');
 
-  var COMP = (sh.ExpandEnvironmentStrings('%COMPUTERNAME%') || '').toUpperCase();
-  var USER = (sh.ExpandEnvironmentStrings('%USERNAME%') || '').toUpperCase();
-
-  // only: [ονόματα υπολογιστών ή χρηστών] → το κουμπί φαίνεται μόνο σε αυτούς. Χωρίς only → σε όλους.
   var PROGRAMS = [
     { key: 'std',  label: 'Τυποποιημένες',       color: '#00695c', letter: 'Τ', url: 'https://vaiconapp.netlify.app' },
     { key: 'eid',  label: 'Ειδικές',             color: '#b71c1c', letter: 'Ε', url: 'https://vaicon-eidikes.netlify.app' },
@@ -119,26 +114,14 @@
     { key: 'emp',  label: 'Εμπορική Διαχείριση', color: '#ef6c00', letter: '€', url: 'https://vaicon-emporiki.netlify.app' }
   ];
 
-  function canSee(p) {
-    if (!p.only || !p.only.length) return true;
-    for (var i = 0; i < p.only.length; i++) {
-      var t = String(p.only[i]).toUpperCase();
-      if (t === COMP || t === USER) return true;
-    }
-    return false;
-  }
-
-  var visible = [];
-  for (var i = 0; i < PROGRAMS.length; i++) { if (canSee(PROGRAMS[i])) visible.push(PROGRAMS[i]); }
-
   var html = '';
-  for (var i = 0; i < visible.length; i++) {
-    var p = visible[i];
+  for (var i = 0; i < PROGRAMS.length; i++) {
+    var p = PROGRAMS[i];
     html += '<div class="tile" onclick="openApp(\'' + p.key + '\')"><div class="badge" style="background:' + p.color + '">' + p.letter + '</div><div class="label">' + p.label + '</div></div>';
   }
   document.getElementById('tiles').innerHTML = html;
 
-  var innerW = Math.max(visible.length, 1) * 236;
+  var innerW = Math.max(PROGRAMS.length, 1) * 236;
   document.getElementById('inner').style.width = innerW + 'px';
   var W = innerW + 120, H = 545;
   window.resizeTo(W, H);
@@ -156,7 +139,6 @@
   }, 200);
 
   try { document.getElementById('ver').innerHTML = 'v' + LAUNCHER_VERSION; } catch (e) {}
-  try { document.getElementById('who').innerHTML = COMP + ' · ' + USER; } catch (e) {}
 
   var DAYS = ['Κυριακή','Δευτέρα','Τρίτη','Τετάρτη','Πέμπτη','Παρασκευή','Σάββατο'];
   var MONTHS = ['Ιανουαρίου','Φεβρουαρίου','Μαρτίου','Απριλίου','Μαΐου','Ιουνίου','Ιουλίου','Αυγούστου','Σεπτεμβρίου','Οκτωβρίου','Νοεμβρίου','Δεκεμβρίου'];
