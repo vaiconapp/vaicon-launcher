@@ -30,7 +30,7 @@
     color: #ffffff;
     text-align: center;
   }
-  .wrap { padding: 28px 20px; }
+  .wrap { padding: 26px 0 22px; margin: 0 auto; }
   h1 { font-size: 40px; letter-spacing: 6px; margin: 0; font-weight: bold; }
   .sub { color: #ffd6d6; margin: 6px 0 30px; font-size: 14px; }
   .tile {
@@ -53,33 +53,24 @@
     color: #ffffff; font-size: 30px; font-weight: bold;
   }
   .label { font-size: 18px; font-weight: bold; }
-  .foot { color: #ffd6d6; font-size: 12px; margin-top: 22px; }
+  #bottom { text-align: left; padding-left: 13px; margin-top: 20px; }
+  #time { font-size: 42px; font-weight: bold; letter-spacing: 1px; }
+  #date { font-size: 16px; margin-left: 14px; color: #ffe3e3; }
+  #corner { position: fixed; right: 14px; bottom: 12px; font-size: 12px; color: #ffd0d0; }
+  #corner #who { opacity: 0.7; margin-left: 8px; }
 </style>
 </head>
 <body>
-  <div class="wrap">
+  <div class="wrap" id="inner">
     <h1>VAICON</h1>
     <div class="sub">Επιλέξτε πρόγραμμα</div>
-
-    <div class="tile" onclick="openApp('std')">
-      <div class="badge" style="background:#00695c">Τ</div>
-      <div class="label">Τυποποιημένες</div>
-    </div><div class="tile" onclick="openApp('eid')">
-      <div class="badge" style="background:#b71c1c">Ε</div>
-      <div class="label">Ειδικές</div>
-    </div><div class="tile" onclick="openApp('inst')">
-      <div class="badge" style="background:#1565C0">Π</div>
-      <div class="label">Τοποθετήσεις</div>
-    </div><div class="tile" id="empTile" onclick="openApp('emp')">
-      <div class="badge" style="background:#ef6c00">€</div>
-      <div class="label">Εμπορική Διαχείριση</div>
-    </div>
-
-    <div class="foot">Επιλέξτε πρόγραμμα για να ανοίξει σε δικό του παράθυρο. <span id="ver"></span></div>
+    <div id="tiles"></div>
+    <div id="bottom"><span id="time">--:--</span><span id="date"></span></div>
   </div>
+  <div id="corner"><span id="ver"></span><span id="who"></span></div>
 
 <script language="javascript">
-  var LAUNCHER_VERSION = 3;
+  var LAUNCHER_VERSION = 4;
   var UPDATE_URL = 'https://raw.githubusercontent.com/vaiconapp/vaicon-launcher/main/VAICON.hta';
 
   (function () {
@@ -114,22 +105,58 @@
     } catch (e) {}
   })();
 
-  try { document.getElementById('ver').innerHTML = 'v' + LAUNCHER_VERSION; } catch (e) {}
+  var sh  = new ActiveXObject('WScript.Shell');
+  var fso = new ActiveXObject('Scripting.FileSystemObject');
 
-  var W = 1040, H = 520;
+  var COMP = (sh.ExpandEnvironmentStrings('%COMPUTERNAME%') || '').toUpperCase();
+  var USER = (sh.ExpandEnvironmentStrings('%USERNAME%') || '').toUpperCase();
+
+  // only: [ονόματα υπολογιστών ή χρηστών] → το κουμπί φαίνεται μόνο σε αυτούς. Χωρίς only → σε όλους.
+  var PROGRAMS = [
+    { key: 'std',  label: 'Τυποποιημένες',       color: '#00695c', letter: 'Τ', url: 'https://vaiconapp.netlify.app' },
+    { key: 'eid',  label: 'Ειδικές',             color: '#b71c1c', letter: 'Ε', url: 'https://vaicon-eidikes.netlify.app' },
+    { key: 'inst', label: 'Τοποθετήσεις',        color: '#1565C0', letter: 'Π', url: 'https://vaicon-installations.netlify.app' },
+    { key: 'emp',  label: 'Εμπορική Διαχείριση', color: '#ef6c00', letter: '€', url: 'https://vaicon-emporiki.netlify.app' }
+  ];
+
+  function canSee(p) {
+    if (!p.only || !p.only.length) return true;
+    for (var i = 0; i < p.only.length; i++) {
+      var t = String(p.only[i]).toUpperCase();
+      if (t === COMP || t === USER) return true;
+    }
+    return false;
+  }
+
+  var visible = [];
+  for (var i = 0; i < PROGRAMS.length; i++) { if (canSee(PROGRAMS[i])) visible.push(PROGRAMS[i]); }
+
+  var html = '';
+  for (var i = 0; i < visible.length; i++) {
+    var p = visible[i];
+    html += '<div class="tile" onclick="openApp(\'' + p.key + '\')"><div class="badge" style="background:' + p.color + '">' + p.letter + '</div><div class="label">' + p.label + '</div></div>';
+  }
+  document.getElementById('tiles').innerHTML = html;
+
+  var innerW = Math.max(visible.length, 1) * 236;
+  document.getElementById('inner').style.width = innerW + 'px';
+  var W = innerW + 120, H = 470;
   window.resizeTo(W, H);
   try { window.moveTo((screen.availWidth - W) / 2, (screen.availHeight - H) / 2); } catch (e) {}
 
-  var URLS = {
-    std:  'https://vaiconapp.netlify.app',
-    eid:  'https://vaicon-eidikes.netlify.app',
-    inst: 'https://vaicon-installations.netlify.app',
-    emp:  'https://vaicon-emporiki.netlify.app'
-  };
-  var EMP_READY = true;
+  try { document.getElementById('ver').innerHTML = 'v' + LAUNCHER_VERSION; } catch (e) {}
+  try { document.getElementById('who').innerHTML = COMP + ' · ' + USER; } catch (e) {}
 
-  var sh  = new ActiveXObject('WScript.Shell');
-  var fso = new ActiveXObject('Scripting.FileSystemObject');
+  var DAYS = ['Κυριακή','Δευτέρα','Τρίτη','Τετάρτη','Πέμπτη','Παρασκευή','Σάββατο'];
+  var MONTHS = ['Ιανουαρίου','Φεβρουαρίου','Μαρτίου','Απριλίου','Μαΐου','Ιουνίου','Ιουλίου','Αυγούστου','Σεπτεμβρίου','Οκτωβρίου','Νοεμβρίου','Δεκεμβρίου'];
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function tick() {
+    var d = new Date();
+    document.getElementById('time').innerHTML = pad(d.getHours()) + ':' + pad(d.getMinutes());
+    document.getElementById('date').innerHTML = DAYS[d.getDay()] + ' ' + d.getDate() + ' ' + MONTHS[d.getMonth()] + ' ' + d.getFullYear() + ' · ' + d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear();
+  }
+  tick();
+  setInterval(tick, 1000);
 
   function appBrowser() {
     var drive = sh.ExpandEnvironmentStrings('%SystemDrive%');
@@ -148,11 +175,9 @@
   }
 
   function openApp(key) {
-    if (key === 'emp' && !EMP_READY) {
-      alert('🛒 Εμπορική Διαχείριση — υπό κατασκευή. Θα ενεργοποιηθεί σύντομα.');
-      return;
-    }
-    var url = URLS[key];
+    var url = null;
+    for (var i = 0; i < PROGRAMS.length; i++) { if (PROGRAMS[i].key === key) { url = PROGRAMS[i].url; break; } }
+    if (!url) return;
     var cp = appBrowser();
     if (cp) { sh.Run('"' + cp + '" --app=' + url, 1, false); }
     else { sh.Run(url, 1, false); }
