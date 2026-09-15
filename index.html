@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>VAICON</title>
+<style>
+  :root { --bg1:#0f172a; --bg2:#1e293b; --card:#ffffff; --txt:#0f172a; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: "Segoe UI", Roboto, system-ui, sans-serif;
+    background: linear-gradient(135deg, var(--bg1), var(--bg2));
+    color: #fff; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; min-height: 100vh; padding: 24px;
+  }
+  h1 { font-size: 42px; letter-spacing: 4px; margin: 0 0 4px; font-weight: 800; }
+  .sub { color: #94a3b8; margin-bottom: 36px; font-size: 15px; }
+  .env { font-size: 12px; color: #64748b; margin-top: 28px; }
+  .grid { display: flex; gap: 22px; flex-wrap: wrap; justify-content: center; }
+  .tile {
+    background: var(--card); color: var(--txt); width: 230px; height: 180px;
+    border-radius: 18px; border: none; cursor: pointer; text-decoration: none;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .tile:hover { transform: translateY(-6px); box-shadow: 0 18px 40px rgba(0,0,0,.45); }
+  .tile .icon { font-size: 52px; }
+  .tile .label { font-size: 19px; font-weight: 700; }
+  .tile .note { font-size: 12px; color: #64748b; }
+</style>
+</head>
+<body>
+  <h1>VAICON</h1>
+  <div class="sub">Επιλέξτε πρόγραμμα</div>
+  <div class="grid" id="grid"></div>
+  <div class="env" id="env"></div>
+
+  <script>
+    var isLocal = !location.hostname || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+    var URLS = isLocal
+      ? { std: 'http://localhost:8081', eid: 'http://localhost:8082', inst: 'http://localhost:8083', emp: 'http://localhost:8084' }
+      : { std: '<LIVE_STD>', eid: '<LIVE_EID>', inst: '<LIVE_INST>', emp: '<LIVE_EMP>' };
+
+    var PROGRAMS = [
+      { key: 'std',  icon: '🚪', label: 'Τυποποιημένες' },
+      { key: 'eid',  icon: '🔧', label: 'Ειδικές' },
+      { key: 'inst', icon: '📦', label: 'Τοποθετήσεις' },
+    ];
+    if (isLocal) PROGRAMS.push({ key: 'emp', icon: '🛒', label: 'Εμπορική Διαχείριση' });
+
+    var grid = document.getElementById('grid');
+    PROGRAMS.forEach(function (p) {
+      var url = URLS[p.key];
+      var a = document.createElement('a');
+      a.className = 'tile';
+      a.href = url;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.innerHTML = '<div class="icon">' + p.icon + '</div>'
+        + '<div class="label">' + p.label + '</div>'
+        + '<div class="note">' + url.replace(/^https?:\/\//, '') + '</div>';
+      grid.appendChild(a);
+    });
+
+    document.getElementById('env').textContent = isLocal ? 'Τοπικό (test)' : 'Live';
+  </script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<title>VAICON</title>
+<HTA:APPLICATION
+  ID="vaicon"
+  APPLICATIONNAME="VAICON"
+  ICON="VAICON.ico"
+  BORDER="thin"
+  INNERBORDER="no"
+  SCROLL="no"
+  SCROLLFLAT="yes"
+  SINGLEINSTANCE="yes"
+  MAXIMIZEBUTTON="no"
+  MINIMIZEBUTTON="yes"
+  SHOWINTASKBAR="yes"
+  CONTEXTMENU="no"
+  SELECTION="no"
+/>
+<style>
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    background: #8e0000;
+    background: linear-gradient(180deg, #d32f2f 0%, #8e0000 100%);
+    color: #ffffff;
+    text-align: center;
+  }
+  .wrap { padding: 28px 20px; }
+  h1 { font-size: 40px; letter-spacing: 6px; margin: 0; font-weight: bold; }
+  .sub { color: #ffd6d6; margin: 6px 0 30px; font-size: 14px; }
+  .tile {
+    display: inline-block;
+    vertical-align: top;
+    width: 210px;
+    height: 175px;
+    margin: 10px;
+    background: #ffffff;
+    color: #0f172a;
+    border-radius: 16px;
+    cursor: pointer;
+    border: 3px solid transparent;
+  }
+  .tile:hover { border-color: #ffffff; }
+  .badge {
+    width: 66px; height: 66px; line-height: 66px;
+    border-radius: 50%;
+    margin: 26px auto 12px;
+    color: #ffffff; font-size: 30px; font-weight: bold;
+  }
+  .label { font-size: 18px; font-weight: bold; }
+  .foot { color: #ffd6d6; font-size: 12px; margin-top: 22px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>VAICON</h1>
+    <div class="sub">Επιλέξτε πρόγραμμα</div>
+
+    <div class="tile" onclick="openApp('std')">
+      <div class="badge" style="background:#00695c">Τ</div>
+      <div class="label">Τυποποιημένες</div>
+    </div><div class="tile" onclick="openApp('eid')">
+      <div class="badge" style="background:#b71c1c">Ε</div>
+      <div class="label">Ειδικές</div>
+    </div><div class="tile" onclick="openApp('inst')">
+      <div class="badge" style="background:#1565C0">Π</div>
+      <div class="label">Τοποθετήσεις</div>
+    </div><div class="tile" id="empTile" onclick="openApp('emp')">
+      <div class="badge" style="background:#ef6c00">€</div>
+      <div class="label">Εμπορική Διαχείριση</div>
+    </div>
+
+    <div class="foot">Επιλέξτε πρόγραμμα για να ανοίξει σε δικό του παράθυρο. <span id="ver"></span></div>
+  </div>
+
+<script language="javascript">
+  var LAUNCHER_VERSION = 1;
+  var UPDATE_URL = 'https://raw.githubusercontent.com/vaiconapp/vaicon-launcher/main/VAICON.hta';
+
+  (function () {
+    try {
+      var htaPath = null;
+      try {
+        var m = String(vaicon.commandLine).match(/([A-Za-z]:\\[^"]*\.hta)/i);
+        if (m) htaPath = m[1];
+      } catch (e) {}
+      if (!htaPath) {
+        try { htaPath = decodeURI(location.href).replace(/^file:\/{2,3}/i, '').replace(/\//g, '\\'); } catch (e) {}
+      }
+      if (!htaPath) return;
+
+      var xhr = new ActiveXObject('MSXML2.ServerXMLHTTP.6.0');
+      xhr.setTimeouts(2000, 2000, 2000, 3000);
+      xhr.open('GET', UPDATE_URL + '?_=' + (new Date().getTime()), false);
+      xhr.send();
+      if (xhr.status !== 200) return;
+
+      var vm = String(xhr.responseText).match(/LAUNCHER_VERSION\s*=\s*(\d+)/);
+      if (!vm || parseInt(vm[1], 10) <= LAUNCHER_VERSION) return;
+
+      var st = new ActiveXObject('ADODB.Stream');
+      st.Type = 1; st.Open(); st.Write(xhr.responseBody);
+      st.SaveToFile(htaPath, 2); st.Close();
+
+      var sh2 = new ActiveXObject('WScript.Shell');
+      sh2.Run('"' + sh2.ExpandEnvironmentStrings('%WINDIR%') + '\\System32\\mshta.exe" "' + htaPath + '"', 1, false);
+      window.close();
+    } catch (e) {}
+  })();
+
+  try { document.getElementById('ver').innerHTML = 'v' + LAUNCHER_VERSION; } catch (e) {}
+
+  var W = 1040, H = 520;
+  window.resizeTo(W, H);
+  try { window.moveTo((screen.availWidth - W) / 2, (screen.availHeight - H) / 2); } catch (e) {}
+
+  var URLS = {
+    std:  'https://vaiconapp.netlify.app',
+    eid:  'https://vaicon-eidikes.netlify.app',
+    inst: 'https://vaicon-installations.netlify.app',
+    emp:  'https://vaicon-emporiki.netlify.app'
+  };
+  var EMP_READY = true;
+
+  var sh  = new ActiveXObject('WScript.Shell');
+  var fso = new ActiveXObject('Scripting.FileSystemObject');
+
+  function appBrowser() {
+    var drive = sh.ExpandEnvironmentStrings('%SystemDrive%');
+    var lad   = sh.ExpandEnvironmentStrings('%LocalAppData%');
+    var c = [
+      drive + '\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+      drive + '\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+      lad   + '\\Google\\Chrome\\Application\\chrome.exe',
+      drive + '\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
+      drive + '\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe'
+    ];
+    for (var i = 0; i < c.length; i++) {
+      try { if (fso.FileExists(c[i])) return c[i]; } catch (e) {}
+    }
+    return null;
+  }
+
+  function openApp(key) {
+    if (key === 'emp' && !EMP_READY) {
+      alert('🛒 Εμπορική Διαχείριση — υπό κατασκευή. Θα ενεργοποιηθεί σύντομα.');
+      return;
+    }
+    var url = URLS[key];
+    var cp = appBrowser();
+    if (cp) { sh.Run('"' + cp + '" --app=' + url, 1, false); }
+    else { sh.Run(url, 1, false); }
+  }
+</script>
+</body>
+</html>
