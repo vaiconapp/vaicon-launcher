@@ -8,7 +8,7 @@
   ID="vaicon"
   APPLICATIONNAME="VAICON"
   ICON="VAICON.ico"
-  BORDER="thin"
+  BORDER="dialog"
   INNERBORDER="no"
   SCROLL="no"
   SCROLLFLAT="yes"
@@ -70,7 +70,7 @@
   <div id="corner"><span id="ver"></span><span id="who"></span></div>
 
 <script language="javascript">
-  var LAUNCHER_VERSION = 4;
+  var LAUNCHER_VERSION = 5;
   var UPDATE_URL = 'https://raw.githubusercontent.com/vaiconapp/vaicon-launcher/main/VAICON.hta';
 
   (function () {
@@ -143,6 +143,8 @@
   var W = innerW + 120, H = 470;
   window.resizeTo(W, H);
   try { window.moveTo((screen.availWidth - W) / 2, (screen.availHeight - H) / 2); } catch (e) {}
+  var _rz = false;
+  window.onresize = function () { if (_rz) return; _rz = true; try { window.resizeTo(W, H); } catch (e) {} setTimeout(function () { _rz = false; }, 60); };
 
   try { document.getElementById('ver').innerHTML = 'v' + LAUNCHER_VERSION; } catch (e) {}
   try { document.getElementById('who').innerHTML = COMP + ' · ' + USER; } catch (e) {}
