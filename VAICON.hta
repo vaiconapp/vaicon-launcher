@@ -70,7 +70,7 @@
   <div id="corner"><span id="ver"></span><span id="who"></span></div>
 
 <script language="javascript">
-  var LAUNCHER_VERSION = 7;
+  var LAUNCHER_VERSION = 8;
   var UPDATE_URL = 'https://raw.githubusercontent.com/vaiconapp/vaicon-launcher/main/VAICON.hta';
 
   (function () {
@@ -146,12 +146,12 @@
   var _rz = false;
   function _lock() { if (_rz) return; _rz = true; try { window.resizeTo(W, H); } catch (e) {} setTimeout(function () { _rz = false; }, 40); }
   window.onresize = _lock;
-  var _baseIW = 0;
-  setTimeout(function () { _baseIW = document.documentElement.offsetWidth; }, 250);
+  var _baseIW = 0, _baseIH = 0;
+  setTimeout(function () { _baseIW = document.documentElement.offsetWidth; _baseIH = document.documentElement.offsetHeight; }, 250);
   setInterval(function () {
     try {
-      var iw = document.documentElement.offsetWidth;
-      if (_baseIW && iw > 50 && Math.abs(iw - _baseIW) > 3) _lock();
+      var iw = document.documentElement.offsetWidth, ih = document.documentElement.offsetHeight;
+      if (_baseIW && iw > 50 && (Math.abs(iw - _baseIW) > 3 || Math.abs(ih - _baseIH) > 3)) _lock();
     } catch (e) {}
   }, 200);
 
