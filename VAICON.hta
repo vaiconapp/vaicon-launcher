@@ -21,7 +21,7 @@
 />
 <style>
   html, body { height: 100%; margin: 0; overflow: hidden; }
-  #scaleWrap { transform-origin: top left; position: relative; }
+  #scaleWrap { position: absolute; left: 50%; top: 0; transform-origin: 50% 0; }
   body {
     font-family: "Segoe UI", Tahoma, sans-serif;
     background: #7a0000;
@@ -76,7 +76,7 @@
   </div>
 
 <script language="javascript">
-  var LAUNCHER_VERSION = 13;
+  var LAUNCHER_VERSION = 14;
   var UPDATE_URL = 'https://raw.githubusercontent.com/vaiconapp/vaicon-launcher/main/VAICON.hta';
 
   (function () {
@@ -128,12 +128,12 @@
   }
   document.getElementById('tiles').innerHTML = html;
 
-  var SCALE = 0.72;
+  var SCALE = 0.6;
   var innerW = Math.max(PROGRAMS.length, 1) * 236;
   document.getElementById('inner').style.width = innerW + 'px';
   var baseW = innerW + 120, baseH = 592;
   var sw = document.getElementById('scaleWrap');
-  if (sw) { sw.style.width = baseW + 'px'; sw.style.height = baseH + 'px'; sw.style.transform = 'scale(' + SCALE + ')'; }
+  if (sw) { sw.style.width = baseW + 'px'; sw.style.height = baseH + 'px'; sw.style.marginLeft = (-baseW / 2) + 'px'; sw.style.transform = 'scale(' + SCALE + ')'; }
   var W = Math.round(baseW * SCALE), H = Math.round(baseH * SCALE);
   window.resizeTo(W, H);
   try { window.moveTo((screen.availWidth - W) / 2, (screen.availHeight - H) / 2); } catch (e) {}
