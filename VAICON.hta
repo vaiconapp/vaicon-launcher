@@ -73,7 +73,7 @@
   <div id="corner"><span id="ver"></span></div>
 
 <script language="javascript">
-  var LAUNCHER_VERSION = 11;
+  var LAUNCHER_VERSION = 12;
   var UPDATE_URL = 'https://raw.githubusercontent.com/vaiconapp/vaicon-launcher/main/VAICON.hta';
 
   (function () {
@@ -125,9 +125,11 @@
   }
   document.getElementById('tiles').innerHTML = html;
 
+  var SCALE = 0.8;
+  try { document.body.style.zoom = SCALE; } catch (e) {}
   var innerW = Math.max(PROGRAMS.length, 1) * 236;
   document.getElementById('inner').style.width = innerW + 'px';
-  var W = innerW + 120, H = 592;
+  var W = Math.round((innerW + 120) * SCALE), H = Math.round(592 * SCALE);
   window.resizeTo(W, H);
   try { window.moveTo((screen.availWidth - W) / 2, (screen.availHeight - H) / 2); } catch (e) {}
   var _rz = false;
