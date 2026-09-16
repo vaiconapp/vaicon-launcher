@@ -20,7 +20,8 @@
   SELECTION="no"
 />
 <style>
-  html, body { height: 100%; margin: 0; }
+  html, body { height: 100%; margin: 0; overflow: hidden; }
+  #scaleWrap { transform-origin: top left; position: relative; }
   body {
     font-family: "Segoe UI", Tahoma, sans-serif;
     background: #7a0000;
@@ -60,20 +61,22 @@
   #bottom { text-align: left; padding-left: 13px; margin-top: 20px; }
   #time { font-size: 42px; font-weight: bold; letter-spacing: 1px; }
   #date { font-size: 16px; margin-left: 14px; color: #ffe3e3; }
-  #corner { position: fixed; right: 14px; bottom: 12px; font-size: 12px; color: #ffd0d0; }
+  #corner { position: absolute; right: 14px; bottom: 12px; font-size: 12px; color: #ffd0d0; }
 </style>
 </head>
 <body>
-  <div class="wrap" id="inner">
-    <div class="titleWrap"><div class="orbitBox"><div class="orbit" id="orbit"></div></div><h1>VAICON</h1></div>
-    <div class="sub">Επιλέξτε πρόγραμμα</div>
-    <div id="tiles"></div>
-    <div id="bottom"><span id="time">--:--</span><span id="date"></span></div>
+  <div id="scaleWrap">
+    <div class="wrap" id="inner">
+      <div class="titleWrap"><div class="orbitBox"><div class="orbit" id="orbit"></div></div><h1>VAICON</h1></div>
+      <div class="sub">Επιλέξτε πρόγραμμα</div>
+      <div id="tiles"></div>
+      <div id="bottom"><span id="time">--:--</span><span id="date"></span></div>
+    </div>
+    <div id="corner"><span id="ver"></span></div>
   </div>
-  <div id="corner"><span id="ver"></span></div>
 
 <script language="javascript">
-  var LAUNCHER_VERSION = 12;
+  var LAUNCHER_VERSION = 13;
   var UPDATE_URL = 'https://raw.githubusercontent.com/vaiconapp/vaicon-launcher/main/VAICON.hta';
 
   (function () {
@@ -125,11 +128,13 @@
   }
   document.getElementById('tiles').innerHTML = html;
 
-  var SCALE = 0.8;
-  try { document.body.style.zoom = SCALE; } catch (e) {}
+  var SCALE = 0.72;
   var innerW = Math.max(PROGRAMS.length, 1) * 236;
   document.getElementById('inner').style.width = innerW + 'px';
-  var W = Math.round((innerW + 120) * SCALE), H = Math.round(592 * SCALE);
+  var baseW = innerW + 120, baseH = 592;
+  var sw = document.getElementById('scaleWrap');
+  if (sw) { sw.style.width = baseW + 'px'; sw.style.height = baseH + 'px'; sw.style.transform = 'scale(' + SCALE + ')'; }
+  var W = Math.round(baseW * SCALE), H = Math.round(baseH * SCALE);
   window.resizeTo(W, H);
   try { window.moveTo((screen.availWidth - W) / 2, (screen.availHeight - H) / 2); } catch (e) {}
   var _rz = false;
