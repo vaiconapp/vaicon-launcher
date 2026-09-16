@@ -30,12 +30,12 @@
     color: #ffffff;
     text-align: center;
   }
-  .wrap { padding: 26px 0 22px; margin: 0 auto; }
+  .wrap { padding: 58px 0 22px; margin: 0 auto; }
   h1 { font-size: 40px; letter-spacing: 6px; margin: 0; font-weight: bold; }
   .sub { color: #ffd6d6; margin: 6px 0 30px; font-size: 14px; }
   .titleWrap { position: relative; display: inline-block; }
-  .orbit { position: absolute; left: 50%; top: 50%; width: 340px; height: 84px; margin-left: -170px; margin-top: -42px; pointer-events: none; animation: spin 3s linear infinite; }
-  .comet { position: absolute; top: -3px; left: 50%; margin-left: -16px; width: 32px; height: 5px; border-radius: 3px; background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,190,150,0.55) 55%, #ffffff 100%); box-shadow: 0 0 12px 3px rgba(255,255,255,0.85), 0 0 26px 8px rgba(255,120,90,0.45); }
+  .orbitBox { position: absolute; left: 50%; top: 50%; width: 130px; height: 130px; margin-left: -65px; margin-top: -65px; transform: scaleX(2.7); pointer-events: none; }
+  .orbit { position: absolute; left: 0; top: 0; width: 100%; height: 100%; animation: spin 3.4s linear infinite; }
   @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   .tile {
     display: inline-block;
@@ -65,7 +65,7 @@
 </head>
 <body>
   <div class="wrap" id="inner">
-    <div class="titleWrap"><div class="orbit"><div class="comet"></div></div><h1>VAICON</h1></div>
+    <div class="titleWrap"><div class="orbitBox"><div class="orbit" id="orbit"></div></div><h1>VAICON</h1></div>
     <div class="sub">Επιλέξτε πρόγραμμα</div>
     <div id="tiles"></div>
     <div id="bottom"><span id="time">--:--</span><span id="date"></span></div>
@@ -73,7 +73,7 @@
   <div id="corner"><span id="ver"></span></div>
 
 <script language="javascript">
-  var LAUNCHER_VERSION = 10;
+  var LAUNCHER_VERSION = 11;
   var UPDATE_URL = 'https://raw.githubusercontent.com/vaiconapp/vaicon-launcher/main/VAICON.hta';
 
   (function () {
@@ -127,7 +127,7 @@
 
   var innerW = Math.max(PROGRAMS.length, 1) * 236;
   document.getElementById('inner').style.width = innerW + 'px';
-  var W = innerW + 120, H = 545;
+  var W = innerW + 120, H = 592;
   window.resizeTo(W, H);
   try { window.moveTo((screen.availWidth - W) / 2, (screen.availHeight - H) / 2); } catch (e) {}
   var _rz = false;
@@ -154,6 +154,28 @@
   }
   tick();
   setInterval(tick, 1000);
+
+  (function () {
+    var orbit = document.getElementById('orbit');
+    if (!orbit) return;
+    var N = 18, step = 3.4;
+    for (var i = 0; i < N; i++) {
+      var seg = document.createElement('div');
+      seg.style.position = 'absolute'; seg.style.left = '0'; seg.style.top = '0'; seg.style.width = '100%'; seg.style.height = '100%';
+      seg.style.transform = 'rotate(' + (-i * step) + 'deg)';
+      var t = 1 - i / N;
+      var sz = 4 + t * 8;
+      var dot = document.createElement('div');
+      dot.style.position = 'absolute'; dot.style.left = '50%'; dot.style.top = '0';
+      dot.style.width = sz + 'px'; dot.style.height = sz + 'px';
+      dot.style.marginLeft = (-sz / 2) + 'px'; dot.style.marginTop = (-sz / 2) + 'px';
+      dot.style.borderRadius = '50%'; dot.style.background = '#ffffff';
+      dot.style.opacity = String(Math.max(0.05, t));
+      if (i === 0) dot.style.boxShadow = '0 0 14px 5px rgba(255,255,255,0.95), 0 0 34px 12px rgba(255,140,90,0.5)';
+      seg.appendChild(dot);
+      orbit.appendChild(seg);
+    }
+  })();
 
   function appBrowser() {
     var drive = sh.ExpandEnvironmentStrings('%SystemDrive%');
